@@ -1,0 +1,187 @@
+
+Thermalmanagement.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000a0  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  000000a0  00000134  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000002  00800060  00800060  00000134  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  00000134  2**0
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000028  00000000  00000000  00000164  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00000194  00000000  00000000  0000018c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000000fa  00000000  00000000  00000320  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   0000012e  00000000  00000000  0000041a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000034  00000000  00000000  00000548  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    0000017b  00000000  00000000  0000057c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_ranges 00000018  00000000  00000000  000006f7  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	16 c0       	rjmp	.+44     	; 0x30 <__bad_interrupt>
+   4:	15 c0       	rjmp	.+42     	; 0x30 <__bad_interrupt>
+   6:	14 c0       	rjmp	.+40     	; 0x30 <__bad_interrupt>
+   8:	13 c0       	rjmp	.+38     	; 0x30 <__bad_interrupt>
+   a:	12 c0       	rjmp	.+36     	; 0x30 <__bad_interrupt>
+   c:	11 c0       	rjmp	.+34     	; 0x30 <__bad_interrupt>
+   e:	10 c0       	rjmp	.+32     	; 0x30 <__bad_interrupt>
+  10:	0f c0       	rjmp	.+30     	; 0x30 <__bad_interrupt>
+  12:	0e c0       	rjmp	.+28     	; 0x30 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_clear_bss>:
+  1c:	20 e0       	ldi	r18, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	01 c0       	rjmp	.+2      	; 0x26 <.do_clear_bss_start>
+
+00000024 <.do_clear_bss_loop>:
+  24:	1d 92       	st	X+, r1
+
+00000026 <.do_clear_bss_start>:
+  26:	a2 36       	cpi	r26, 0x62	; 98
+  28:	b2 07       	cpc	r27, r18
+  2a:	e1 f7       	brne	.-8      	; 0x24 <.do_clear_bss_loop>
+  2c:	0e d0       	rcall	.+28     	; 0x4a <main>
+  2e:	36 c0       	rjmp	.+108    	; 0x9c <_exit>
+
+00000030 <__bad_interrupt>:
+  30:	e7 cf       	rjmp	.-50     	; 0x0 <__vectors>
+
+00000032 <ioinit>:
+
+	////////////////////////////////////////////////////////////////////////////
+	//ADC			try adate
+	////////////////////////////////////////////////////////////////////////////
+	//ADC Control and Status Register	
+	ADCSRB 	=(0<<ADTS2)	|(0<<ADTS1)	|(0<<ADTS0)	|(0<<ACME);
+  32:	13 b8       	out	0x03, r1	; 3
+	//ADMUX – ADC Multiplexer Selection Register  MUX=10 -> ADC2
+	 adc_channel= chan_pot;
+  34:	82 e0       	ldi	r24, 0x02	; 2
+  36:	87 b9       	out	0x07, r24	; 7
+	//ADC Control and Status Register A	 (ADPS = 011 -> 125KHz (2oo is max)
+	ADCSRA	=(0<<ADPS2)	|(1<<ADPS1)	|(1<<ADPS0)	|(0<<ADIE)	|(0<<ADIF)	|(1<<ADATE)	|(0<<ADSC)	|(1<<ADEN);
+  38:	83 ea       	ldi	r24, 0xA3	; 163
+  3a:	86 b9       	out	0x06, r24	; 6
+	//Analog Comparator Control and Status Register  (disabled)
+	ACSR 	=(0<<ACIS0)	|(0<<ACIS1)	|(0<<ACIE)	|(0<<ACI)	|(0<<ACO)	|(0<<ACBG)	|(1<<ACD);
+  3c:	80 e8       	ldi	r24, 0x80	; 128
+  3e:	88 b9       	out	0x08, r24	; 8
+	//Pin Change Mask Register
+//	PCMSK 	=(0<<PCINT0)|(0<<PCINT1)|(0<<PCINT2)|(0<<PCINT3)|(0<<PCINT4)|(0<<PCINT5);
+	//Port B Input Pins Address
+	//PINB 	=(0<<PINB0)	|(0<<PINB1)	|(0<<PINB2)	|(0<<PINB3)	|(0<<PINB4)	|(0<<PINB5);
+	//enable pull-up on btn
+	PORTB	=(0<<PORTB0)|(0<<PORTB1)|(0<<PORTB2)|(0<<PORTB3)|(0<<PORTB4)|(1<<PORTB5);
+  40:	80 e2       	ldi	r24, 0x20	; 32
+  42:	88 bb       	out	0x18, r24	; 24
+	//Port B Data Direction Register
+	DDRB 	=(1<<DDB0)	|(1<<DDB1)	|(1<<DDB2)	|(0<<DDB3)	|(0<<DDB4)	|(0<<DDB5);
+  44:	87 e0       	ldi	r24, 0x07	; 7
+  46:	87 bb       	out	0x17, r24	; 23
+  48:	08 95       	ret
+
+0000004a <main>:
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  4a:	2f e3       	ldi	r18, 0x3F	; 63
+  4c:	8d e0       	ldi	r24, 0x0D	; 13
+  4e:	93 e0       	ldi	r25, 0x03	; 3
+  50:	21 50       	subi	r18, 0x01	; 1
+  52:	80 40       	sbci	r24, 0x00	; 0
+  54:	90 40       	sbci	r25, 0x00	; 0
+  56:	e1 f7       	brne	.-8      	; 0x50 <main+0x6>
+  58:	00 c0       	rjmp	.+0      	; 0x5a <main+0x10>
+  5a:	00 00       	nop
+
+
+*/
+  int main(void){
+  	_delay_ms(1000);
+  	ioinit();	//initialise all IO
+  5c:	ea df       	rcall	.-44     	; 0x32 <ioinit>
+	int templ,temph;
+	
+	//adc_chan_pot();
+	adc_start();
+  5e:	36 9a       	sbi	0x06, 6	; 6
+	led_off();
+  60:	c2 9a       	sbi	0x18, 2	; 24
+  	while(1){
+		
+		//-----------------
+		adc_start();
+  62:	36 9a       	sbi	0x06, 6	; 6
+  64:	87 ea       	ldi	r24, 0xA7	; 167
+  66:	91 e6       	ldi	r25, 0x61	; 97
+  68:	01 97       	sbiw	r24, 0x01	; 1
+  6a:	f1 f7       	brne	.-4      	; 0x68 <main+0x1e>
+  6c:	00 c0       	rjmp	.+0      	; 0x6e <main+0x24>
+  6e:	00 00       	nop
+		_delay_ms(100);
+
+		//-----------------
+		ledstatus = ~ledstatus;
+  70:	80 91 60 00 	lds	r24, 0x0060
+  74:	90 91 61 00 	lds	r25, 0x0061
+  78:	80 95       	com	r24
+  7a:	90 95       	com	r25
+  7c:	90 93 61 00 	sts	0x0061, r25
+  80:	80 93 60 00 	sts	0x0060, r24
+		if(ledstatus)
+  84:	89 2b       	or	r24, r25
+  86:	11 f0       	breq	.+4      	; 0x8c <main+0x42>
+			pwr_on();
+  88:	c1 98       	cbi	0x18, 1	; 24
+  8a:	01 c0       	rjmp	.+2      	; 0x8e <main+0x44>
+		else
+			pwr_off();
+  8c:	c1 9a       	sbi	0x18, 1	; 24
+		//-----------------
+		//if(adc_working()){
+		//	_delay_ms(500);
+	
+		//}else{
+			templ=ADCL;	
+  8e:	84 b1       	in	r24, 0x04	; 4
+			temph=ADCH;
+			//adc_start();
+				
+			if(temph& 0x01)
+  90:	28 9b       	sbis	0x05, 0	; 5
+  92:	02 c0       	rjmp	.+4      	; 0x98 <main+0x4e>
+				led_on();
+  94:	c2 98       	cbi	0x18, 2	; 24
+  96:	e5 cf       	rjmp	.-54     	; 0x62 <main+0x18>
+			else
+				led_off();
+  98:	c2 9a       	sbi	0x18, 2	; 24
+  9a:	e3 cf       	rjmp	.-58     	; 0x62 <main+0x18>
+
+0000009c <_exit>:
+  9c:	f8 94       	cli
+
+0000009e <__stop_program>:
+  9e:	ff cf       	rjmp	.-2      	; 0x9e <__stop_program>

@@ -1,0 +1,93 @@
+#-------------------------------------------------------
+# NAME    : .gitignore
+#
+# Author  : Jonathan L'Espérance
+# TITLE   : Stagiaire chez electroline
+#
+# BRIEF   : Fichier d'énumeration de répertoires
+#	    et de fichier à ne pas synchroniser
+#
+# Creation: 5/ 1/2014 //Basic gitignore file
+# Update  : 5/22/2014 //mise en page et ajout de filtre
+#
+# Example : http://www.gitignore.io/
+#-------------------------------------------------------
+
+#--------------------------------------
+# CVS Folder Ignore not required anymore
+CVS/*
+
+#-------------------------------
+# Junk file from Operating System
+[Tt]humbs.db
+*.DS_Store
+
+#--------------------------------------------
+# Exclude archive from past versionning method
+*.zip
+*.7z
+*.tar
+*.rar
+
+#-------------------------
+# M$ Office Temporary Files
+~$*
+
+#---------------
+# Executable File
+*.exe
+
+#--------------------------------
+# Generic C++ Compiled Object File
+*.o
+*.obj
+*.lo
+*.slo
+
+#--------------------------------
+# Concurrent Versions System (CVS)  
+/CVS/*
+*/CVS/*
+.cvsignore
+*/.cvsignore
+
+#-------------------
+# Misplaced git init 
+.git
+
+#----------------------
+# CVI Install kit folder
+cvibuild*
+installkitload*/
+bpiPlus/
+cvidist*
+
+#----------------------
+# NI CVI Generated file
+.nidobj
+.bri
+.res
+.ini
+.cab
+.msi
+.cdb
+.bin
+*.nidobj
+*.bri
+*.res
+*.ini
+*.cab
+*.msi
+*.cdb
+*.bin
+
+#----------------------
+# Certificat de SyncGlobal
+*.cert
+*._pwd
+*.mac
+*_cert
+*.pwd
+
+
+
