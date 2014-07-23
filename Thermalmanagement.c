@@ -56,6 +56,7 @@ const char LUT[2][21]=
 void blink();
 
 void ioinit (void){
+
 	////////////////////////////////////////////////////////////////////////////
 	//General I/O
 	DIDR0 	=(1<<AIN0D)	|(1<<AIN1D)	|(1<<ADC1D)	|(1<<ADC3D)	|(1<<ADC2D)	|(1<<ADC0D);
