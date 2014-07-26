@@ -27,6 +27,11 @@
 #define TEMP_VAL_START	25		//Temperature to start Fan power[0:100] °C
 #define TEMP_VAL_MAX	100		//Maximum temperature the user can set the Max_temp
 
+//Uncomment if applicable
+#define PWM_ACTIVE_LOW		
+//#define FAN_POWER_ACTIVE_LOW
+//#define ALERT_ACTIVE_LOW
+
 
  /**********\
  | Includes |
@@ -56,13 +61,22 @@
 #define AdcConvDone		((ADCSRA & (1 << ADSC)) == 0)
 
 //fan power control [on/ off]
-#define fan_off() 		(PORTB	&= ~(1<<PORTB1))
-#define fan_on() 		(PORTB	|=  (1<<PORTB1))
+#ifdef FAN_POWER_ACTIVE_LOW
+	#define fan_power_on() 		(PORTB	&= ~(1<<PORTB1))
+	#define fan_power_off() 	(PORTB	|=  (1<<PORTB1))
+#else
+	#define fan_power_off() 	(PORTB	&= ~(1<<PORTB1))
+	#define fan_power_on() 		(PORTB	|=  (1<<PORTB1))
+#endif
 
 //Alert Led macro
-#define led_off() 		(PORTB	&= ~(1<<PORTB2))
-#define led_on() 		(PORTB	|=  (1<<PORTB2))
-
+#ifdef ALERT_ACTIVE_LOW  
+	#define led_on() 		(PORTB	&= ~(1<<PORTB2))
+	#define led_off() 		(PORTB	|=  (1<<PORTB2))
+#else
+	#define led_off() 		(PORTB	&= ~(1<<PORTB2))
+	#define led_on() 		(PORTB	|=  (1<<PORTB2))
+#endif
 
  /************\
  | Prototypes |
@@ -84,13 +98,13 @@ void ReadPot(void);
 int LinearPwmCalculate(void);
 
 //Global Variable
-int temperature		=0;		// Actual temperature in °C
-int temp_max		=0;		// user selected max allowed temperature
+unsigned int temperature		=0;		// Actual temperature in °C
+unsigned int temperature_max	=0;		// user selected max allowed temperature
 
 int main(void)
 {
-	int temp_max_mem	=0;		// last temp_max_mem
-	int switch_adc		=0;		// ADC channel change flag
+	int temperature_max_mem	=0;		// last temperature_max_mem
+	int switch_adc			=0;		// ADC channel change flag
 
 	_delay_ms(1000);
 	
@@ -105,16 +119,17 @@ int main(void)
 		//If last ADC conversion is done			
 		if(AdcConvDone)
 		{	
+			
 			//select next adc reading channel (read 3x temp for each pot read
 			switch_adc++;
 			switch_adc &= 0x03;
 
 			switch(switch_adc)
 			{
+				case 0:		ReadTemperature();	break;
 				case 1:		ReadTemperature();	break;
-				case 2:		ReadTemperature();	break;
-				case 3:		ReadTemperature();	ADMUX = MUX_POT_CHAN;	break;
-				case 4:		ReadPot();			ADMUX = MUX_TEMP_CHAN;	break;	
+				case 2:		ReadTemperature();	ADMUX = MUX_POT_CHAN;	break;
+				case 3:		ReadPot();			ADMUX = MUX_TEMP_CHAN;	break;	
 				default:	switch_adc=0;		ADMUX = MUX_TEMP_CHAN;	break; 
 			}
 			//start new conversion
@@ -133,12 +148,12 @@ int main(void)
 		//to keep if from continuously changing,
 		//the new value must be 8°C more than 
 		//the old value to change the value
-		if((temp_max>>3) != temp_max_mem)
-		{/
-			temp_max_mem = temp_max>>3;
+		if((temperature_max>>1) != temperature_max_mem)
+		{
+			temperature_max_mem = temperature_max>>1;
 			led_off();
 			_delay_ms(1000);
-			blink(temp_max/10);
+			blink(temperature_max/10);
 			_delay_ms(1000);
 		}
 		
@@ -147,29 +162,45 @@ int main(void)
 		 // PWM adjusting //
 		/////////////////// 
 
-		if(temperature >= temp_max)
+		if(temperature >= temperature_max)
 		{
-			OCR0A =  PWM_VAL_MAX;
-			fan_on();
+			fan_power_on();
 			led_on();
+
+			#ifdef PWM_ACTIVE_LOW
+				OCR0A =  0xFF-PWM_VAL_MAX;
+			#else
+				OCR0A =  PWM_VAL_MAX;
+			#endif	
 		}
 		else
 		{ 
 			led_off();
 			if (temperature<=TEMP_VAL_START)
 			{
-				OCR0A =  PWM_VAL_MIN;
-				fan_off();
+				fan_power_off();
+				
+				#ifdef PWM_ACTIVE_LOW
+					OCR0A = 0xFF;
+				#else
+					OCR0A = 0x00;
+				#endif
+				
 			} 
 			else
-			{		
-				OCR0A =  LinearPwmCalculate();
-				fan_on();
+			{	
+				fan_power_on();
+				
+				#ifdef PWM_ACTIVE_LOW
+					OCR0A = 0xFF-LinearPwmCalculate();
+				#else
+					OCR0A = LinearPwmCalculate();	
+				#endif			
 			}
-
 		}				
 	}
 }
+
 
 //Blink the led to tell user max temperature allowed (step of 10°C)
 void blink(unsigned int numbers){
@@ -181,7 +212,7 @@ void blink(unsigned int numbers){
 	}
 }
 
-//Initialise register required for the application
+//Initialize register required for the application
 void ioinit (void){
 
 	////////////////////////////////////////////////////////////////////////////
@@ -219,27 +250,27 @@ void ReadTemperature(void)
 void ReadPot(void)
 {
 	unsigned int temp;
-	temp= ADCH>>1;
+	temp= ADCH/2;
 
 	if(temp>TEMP_VAL_MAX)
-		temp_max= TEMP_VAL_MAX;
+		temperature_max= TEMP_VAL_MAX;
 	else
-		temp_max= temp;
+		temperature_max= temp;
 }
 
 
 //The pwm linearisation formulae is
-//pwm = (temperature-temp_start) * (PWM_MAX-PWM_Min) / (temp_max-temp_start) + PWM_Min
+//pwm = (temperature-temp_start) * (PWM_MAX-PWM_Min) / (temperature_max-temp_start) + PWM_Min
 int LinearPwmCalculate(void)
 {
 	double temp_math;
 	
 //	temp_math  = ( temperature - TEMP_VAL_START);
 //	temp_math *= ( PWM_VAL_MAX - PWM_VAL_MIN);
-//	temp_math /= ( temp_max - TEMP_VAL_START);
+//	temp_math /= ( temperature_max - TEMP_VAL_START);
 //	temp_math += ( PWM_VAL_MIN);
 
-	temp_math  = ( temperature - TEMP_VAL_START)*( PWM_VAL_MAX - PWM_VAL_MIN) /  ( temp_max - TEMP_VAL_START)+ ( PWM_VAL_MIN);
+	temp_math  = ( temperature - TEMP_VAL_START)*( PWM_VAL_MAX - PWM_VAL_MIN) /  ( temperature_max - TEMP_VAL_START)+ ( PWM_VAL_MIN);
 
 
 	//Should never be greater than 0xFF from my calculation
