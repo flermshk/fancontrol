@@ -1,5 +1,5 @@
 /**																		  ___
-	@File	: main.c							(PCINT5/RST/ADC0/dW) PB5-|*	 |-VCC	[2:5] V.							Spec
+	@File	: Thermalmanagement.c				(PCINT5/RST/ADC0/dW) PB5-|*	 |-VCC	[2:5] V.							Spec
 	@project: Smart fan controller				(PCINT3/CLKI/ADC3)	 PB3-|	 |-PB2	(SCK/ADC1/T0/PCINT2)				1KB Flash
 	@Brief	: Programmable fan controller		(PCINT4/ADC2)		 PB4-|	 |-PB1	(MISO/AIN1/OC0B/INT0/PCINT1)		64B SRAM
 	@Hardware ATtiny13A												 GND-|___|-PB0	(MOSI/AIN0/OC0A/PCINT0)				64B EEPROM
@@ -14,21 +14,25 @@
 	PB5	 - 			- dont	- touch
 	
   @Author: Jonathan L'Espérance
-  @Date 14/06/14
+  @Original 14/06/2014
+  @Update	25/07/2014
 */
-///////////////////////////////////////////////
-//Temperature response section
-const char LUT[2][21]= 
-{	
-	{20,	25,		30,		35,		40,		45,		50,		55,		60,		65,		70,		75,		80,		85,		90,		95,		100,	105,	110,	115,	120 },	/*Temperatures*/
-	{0x00,	0x19,	0x33,	0x4C,	0x66,	0x72,	0x7F,	0x99,	0xB2,	0xCC,	0xE5,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF}	/*PWM Value*/
-};
+
+ /*************************\
+ | Compilation time option |
+ \*************************/
+
+#define PWM_VAL_MIN		0x19	//Minimum PWM value	[0:FF]
+#define PWM_VAL_MAX		0xFF	//Maximum PWM value	[0:FF]
+#define TEMP_VAL_START	25		//Temperature to start Fan power[0:100] °C
+#define TEMP_VAL_MAX	100		//Maximum temperature the user can set the Max_temp
 
 
-#define sensors //
+ /**********\
+ | Includes |
+ \**********/
 
-
-#define F_CPU 1000000UL  // 1 MHz
+#define F_CPU 1000000UL  // 1 MHz => usefull for delay
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -40,21 +44,144 @@ const char LUT[2][21]=
 #include <avr/wdt.h>
 #include <util/delay.h>
 
-//Personal macro
-#define adc_channel_pot		0x23	//(ADMUX = (1<< ADLAR) | 0x02)//ADC3  PB3
-#define adc_channel_temp	0x22	//(ADMUX = (1<< ADLAR) | 0x03)//ADC2	PB4
 
-#define reg_off() 		(PORTB	&= ~(1<<PORTB0))
-#define reg_on() 		(PORTB	|=  (1<<PORTB0))
+ /********************\
+ | MACRO and shortcut |
+ \********************/
 
-#define pwr_off() 		(PORTB	&= ~(1<<PORTB1))
-#define pwr_on() 		(PORTB	|=  (1<<PORTB1))
+#define MUX_POT_CHAN	0x23	//(ADMUX = (1<< ADLAR) | 0x02)//ADC3	PB3
+#define MUX_TEMP_CHAN	0x22	//(ADMUX = (1<< ADLAR) | 0x03)//ADC2	PB4
 
+//ADC Conversion Done
+#define AdcConvDone		((ADCSRA & (1 << ADSC)) == 0)
+
+//fan power control [on/ off]
+#define fan_off() 		(PORTB	&= ~(1<<PORTB1))
+#define fan_on() 		(PORTB	|=  (1<<PORTB1))
+
+//Alert Led macro
 #define led_off() 		(PORTB	&= ~(1<<PORTB2))
 #define led_on() 		(PORTB	|=  (1<<PORTB2))
 
-void blink();
 
+ /************\
+ | Prototypes |
+ \************/
+
+//Blink the led to tell user max temperature allowed (step of 10°C)
+void blink(unsigned int numbers);
+
+//Initialize register required for the application
+void ioinit (void);
+
+//Read temperature ADC and return value in °C
+void ReadTemperature(void);
+
+//Read pot ADC and return value between [0:100]
+void ReadPot(void);
+
+//return the PWM value for actual temperature
+int LinearPwmCalculate(void);
+
+//Global Variable
+int temperature		=0;		// Actual temperature in °C
+int temp_max		=0;		// user selected max allowed temperature
+
+int main(void)
+{
+	int temp_max_mem	=0;		// last temp_max_mem
+	int switch_adc		=0;		// ADC channel change flag
+
+	_delay_ms(1000);
+	
+	ioinit();	//initialize all IO
+  	
+	while(1)
+	{
+		  /////////////////
+		 // ADC Reading //
+		/////////////////
+
+		//If last ADC conversion is done			
+		if(AdcConvDone)
+		{	
+			//select next adc reading channel (read 3x temp for each pot read
+			switch_adc++;
+			switch_adc &= 0x03;
+
+			switch(switch_adc)
+			{
+				case 1:		ReadTemperature();	break;
+				case 2:		ReadTemperature();	break;
+				case 3:		ReadTemperature();	ADMUX = MUX_POT_CHAN;	break;
+				case 4:		ReadPot();			ADMUX = MUX_TEMP_CHAN;	break;	
+				default:	switch_adc=0;		ADMUX = MUX_TEMP_CHAN;	break; 
+			}
+			//start new conversion
+			ADCSRA |= (1<< ADSC);			
+		}
+	   
+
+		  ////////////////////////////////////////
+		 // Set the maximum allowed temperature//
+		////////////////////////////////////////
+
+		//if user selected a new value
+		//The led turn off for 1 sec and
+		//then blink for each 10°C increment
+		//ex: 5 blink = 50°C
+		//to keep if from continuously changing,
+		//the new value must be 8°C more than 
+		//the old value to change the value
+		if((temp_max>>3) != temp_max_mem)
+		{/
+			temp_max_mem = temp_max>>3;
+			led_off();
+			_delay_ms(1000);
+			blink(temp_max/10);
+			_delay_ms(1000);
+		}
+		
+  
+		  ///////////////////
+		 // PWM adjusting //
+		/////////////////// 
+
+		if(temperature >= temp_max)
+		{
+			OCR0A =  PWM_VAL_MAX;
+			fan_on();
+			led_on();
+		}
+		else
+		{ 
+			led_off();
+			if (temperature<=TEMP_VAL_START)
+			{
+				OCR0A =  PWM_VAL_MIN;
+				fan_off();
+			} 
+			else
+			{		
+				OCR0A =  LinearPwmCalculate();
+				fan_on();
+			}
+
+		}				
+	}
+}
+
+//Blink the led to tell user max temperature allowed (step of 10°C)
+void blink(unsigned int numbers){
+	while(numbers--){
+		led_on();
+		_delay_ms(200);
+		led_off();
+		_delay_ms(200);
+	}
+}
+
+//Initialise register required for the application
 void ioinit (void){
 
 	////////////////////////////////////////////////////////////////////////////
@@ -65,7 +192,7 @@ void ioinit (void){
 	////////////////////////////////////////////////////////////////////////////
 	//ADC
 	ADCSRA	=  (1<<ADPS1)	|(1<<ADPS0)	|(1<<ADEN);
-	ADMUX	= adc_channel_pot;
+	ADMUX	= MUX_POT_CHAN;
 
 	////////////////////////////////////////////////////////////////////////////
 	//EEPROM
@@ -78,99 +205,46 @@ void ioinit (void){
 
 	////////////////////////////////////////////////////////////////////////////
 	//Timer / PWM
-	TCCR0A 	=(1<<WGM01)|(1<<WGM00)|(1<<COM0A1)|(1<<COM0A0);		
-	OCR0A 	= 0;	
+	TCCR0A 	=(1<<WGM01)|(1<<WGM00)|(1<<COM0A1)|(1<<COM0A0);
+	OCR0A 	= 0;
 	TCCR0B 	=(0<<CS02)|(0<<CS01)|(1<<CS00);//|   (1<<WGM02);		//gm02 toggle pwm
 }
 
-unsigned int readadc(int channel);
+void ReadTemperature(void)
+{
+	temperature= (ADCH-25)<<1;
+}
 
-  int main(void){
-  	
-	int temperature=0, alertlvl=0, oldalertlvl=0, switch_adc=0;
-  	int i=0;
-  	 _delay_ms(1000);
-	ioinit();	//initialize all IO
-  	while(1){
-		////////////////////////////////////////////////////////////
-		//ADC reading process
-		if((ADCSRA & (1 << ADSC)) == 0){	//si conversion terminé
-		
-			switch_adc = ~switch_adc;	//read other channel
-			if(switch_adc & 0x01){
-				temperature = (ADCH-25)<<1; //temp ~ 2*(adc-25)  <-- verified, 
-				ADMUX	= adc_channel_pot;
-			}else{
-				alertlvl = ADCH/20;
-				ADMUX	= adc_channel_temp;
-			}
-			ADCSRA |= (1<< ADSC);			//Start conversion
-	}
-		   
-		   ////////////////////////////////////////////////////////////
-		  //Setup du alert level
-			if(alertlvl != oldalertlvl){
-				oldalertlvl = alertlvl;
-				led_off();
-				_delay_ms(1000);
-				blink(alertlvl);
-				_delay_ms(1000);
-			}
-		  
-		   ////////////////////////////////////////////////////////////
-		   //PWM ajusting
-		   for(i=0 ; temperature>LUT[0][i] ; i++);
-	   
-	   		OCR0A = ~LUT[1][i];
+//return pot value [0:100]
+void ReadPot(void)
+{
+	unsigned int temp;
+	temp= ADCH>>1;
 
-			////////////////////////////////////////////////////////////
-			//Alert monitoring
-			if(alertlvl<(temperature/10))
-				led_on();
-			else
-				led_off();
-	}
+	if(temp>TEMP_VAL_MAX)
+		temp_max= TEMP_VAL_MAX;
+	else
+		temp_max= temp;
 }
 
 
-void blink(unsigned int numbers){
-	while(numbers--){
-		led_on();
-		_delay_ms(200);
-		led_off();
-		_delay_ms(200);
-	}
+//The pwm linearisation formulae is
+//pwm = (temperature-temp_start) * (PWM_MAX-PWM_Min) / (temp_max-temp_start) + PWM_Min
+int LinearPwmCalculate(void)
+{
+	double temp_math;
+	
+//	temp_math  = ( temperature - TEMP_VAL_START);
+//	temp_math *= ( PWM_VAL_MAX - PWM_VAL_MIN);
+//	temp_math /= ( temp_max - TEMP_VAL_START);
+//	temp_math += ( PWM_VAL_MIN);
+
+	temp_math  = ( temperature - TEMP_VAL_START)*( PWM_VAL_MAX - PWM_VAL_MIN) /  ( temp_max - TEMP_VAL_START)+ ( PWM_VAL_MIN);
+
+
+	//Should never be greater than 0xFF from my calculation
+	if(temp_math>= 0xFF)
+		return 0xFF;
+
+	return ((unsigned int) temp_math);
 }
-
-
-//	void EEPROM_write(unsigned char ucAddress, unsigned char ucData)
-//	{
-//		/* Wait for completion of previous write */
-//		while(EECR & (1<<EEWE));
-//		
-//		/* Set Programming mode */
-//		EECR = (0<<EEPM1)|(0<<EEPM0)
-//		
-//		/* Set up address and data registers */
-//		EEARL = ucAddress;
-//		EEDR = ucData;
-//		
-//		/* Write logical one to EEMWE */
-//		EECR |= (1<<EEMWE);
-//		
-//		/* Start eeprom write by setting EEWE */
-//		EECR |= (1<<EEWE);
-//	}
-//	
-//	unsigned char EEPROM_read(unsigned char ucAddress)
-//	{
-//		/* Wait for completion of previous write */
-//		while(EECR & (1<<EEWE))
-//		;
-//		/* Set up address register */
-//		EEARL = ucAddress;
-//		/* Start eeprom read by writing EERE */
-//		EECR |= (1<<EERE);
-//		/* Return data from data register */
-//		return EEDR;
-//	}
