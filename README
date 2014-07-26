@@ -1,0 +1,81 @@
+---------------------------------------
+BRIEF
+The Project goal is to use a Attiny13A
+and a temperature sensors to control
+a PC fan.
+
+A potentiometer is used to set the max
+temperature at witch the fan are at
+maximum capacity.
+
+Under 25°C the fan stay off and the
+power pin is also turned off.
+
+Between 25°C and the max_temperature
+the fan pwm folow a linear curve.
+
+When selecting the max temperature
+the led will blink for each 10°C
+increment.
+
+The pin refered as Reg_control or
+power control is to enable an step-up
+power supply if no 12v is available.
+
+
+---------------------------------------
+PART REQUIREMENT
+
+[Temperature IC]
+Manufacturer: Texas Instrument
+Part name	: LMT90DBZT
+Footprint	: SOT23-3 / TO-236-3 / SC-59
+Digi-Key	: 296-35732-1-ND
+Price (x1)	: 1.18
+Price (x10)	: 9.73
+http://www.digikey.ca/product-search/en?KeyWords=296-35732-1-ND
+
+
+[Micro-controler]
+Manufacturer: Atmel
+Part name	: ATTINY13A
+Footprint	: 8-SOIC / 8-PDIP
+Digi-Key	: ATTINY13A-SNRCT-ND / ATTINY13A-PU-ND
+Price (x1)	: 1.66
+Price (x10)	: 14.75
+http://www.digikey.ca/product-detail/en/ATTINY13A-SNR/ATTINY13A-SNRCT-ND/3440990
+
+
+---------------------------------------
+ATTiny13A PINOUT
+						  ___
+(PCINT5/RST/ADC0/dW) PB5-|*	 |-VCC	[2:5] V.
+(PCINT3/CLKI/ADC3)	 PB3-|	 |-PB2	(SCK/ADC1/T0/PCINT2)
+(PCINT4/ADC2)		 PB4-|	 |-PB1	(MISO/AIN1/OC0B/INT0/PCINT1)
+					 GND-|___|-PB0	(MOSI/AIN0/OC0A/PCINT0)
+memory:
+	1KB Flash
+	64B SRAM
+	64B EEMPROM
+
+
+---------------------------------------
+DESCRIPTION
+
+Port	Tris		- ALT	- Role
+- - - - - - - - - - - - - -
+PB0	 - Output	- OC0A	- PWM (fan control)
+PB1	 - Output	-		- Reg_control (on/off)
+PB2	 - Output	-		- LED (alarm)
+PB3	 -			- ADC3	- potentiometer
+PB4	 -			- ADC2	- temp sensor
+PB5	 - 			- dont	- touch
+
+
+---------------------------------------
+ABOUT
+Author: Jonathan.L
+Contributor: Laurence.DV
+
+Original 14/06/2014
+Update	25/07/2014

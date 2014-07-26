@@ -12,10 +12,12 @@
 	PB3	 -			- ADC3	- potentiometer
 	PB4	 -			- ADC2	- temp sensor
 	PB5	 - 			- dont	- touch
-	
-  @Author: Jonathan L'Espérance
-  @Original 14/06/2014
-  @Update	25/07/2014
+
+	Temperature IC: LMT90DBZT	
+
+	@Author: Jonathan L'Espérance
+	@Original 14/06/2014
+	@Update	25/07/2014
 */
 
  /*************************\
