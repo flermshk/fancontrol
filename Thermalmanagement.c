@@ -15,7 +15,7 @@
 
 	Temperature IC: LMT90DBZT	
 
-	@Author: Jonathan L'Esp�rance
+	@Author: Jonathan L'Espérance
 	@Original 14/06/2014
 	@Update	25/07/2014
 */
@@ -26,8 +26,12 @@
 
 #define PWM_VAL_MIN		0x19	//Minimum PWM value	[0:FF]
 #define PWM_VAL_MAX		0xFF	//Maximum PWM value	[0:FF]
-#define TEMP_VAL_START	25		//Temperature to start Fan power[0:100] �C
+#define TEMP_VAL_START	25		//Temperature to start Fan power[0:100] °C
 #define TEMP_VAL_MAX	100		//Maximum temperature the user can set the Max_temp
+
+#define PCB_REV_A
+//#define PCB_REV_B
+
 
 //Uncomment if applicable
 #define PWM_ACTIVE_LOW		
@@ -84,13 +88,13 @@
  | Prototypes |
  \************/
 
-//Blink the led to tell user max temperature allowed (step of 10�C)
+//Blink the led to tell user max temperature allowed (step of 10°C)
 void blink(unsigned int numbers);
 
 //Initialize register required for the application
 void ioinit (void);
 
-//Read temperature ADC and return value in �C
+//Read temperature ADC and return value in °C
 void ReadTemperature(void);
 
 //Read pot ADC and return value between [0:100]
@@ -100,7 +104,7 @@ void ReadPot(void);
 int LinearPwmCalculate(void);
 
 //Global Variable
-unsigned int temperature		=0;		// Actual temperature in �C
+unsigned int temperature		=0;		// Actual temperature in °C
 unsigned int temperature_max	=0;		// user selected max allowed temperature
 
 int main(void)
@@ -145,10 +149,10 @@ int main(void)
 
 		//if user selected a new value
 		//The led turn off for 1 sec and
-		//then blink for each 10�C increment
-		//ex: 5 blink = 50�C
+		//then blink for each 10°C increment
+		//ex: 5 blink = 50°C
 		//to keep if from continuously changing,
-		//the new value must be 8�C more than 
+		//the new value must be 8°C more than 
 		//the old value to change the value
 		if((temperature_max>>1) != temperature_max_mem)
 		{
@@ -204,7 +208,7 @@ int main(void)
 }
 
 
-//Blink the led to tell user max temperature allowed (step of 10�C)
+//Blink the led to tell user max temperature allowed (step of 10°C)
 void blink(unsigned int numbers){
 	while(numbers--){
 		led_on();
@@ -252,12 +256,47 @@ void ReadTemperature(void)
 void ReadPot(void)
 {
 	unsigned int temp;
-	temp= ADCH/2;
 
-	if(temp>TEMP_VAL_MAX)
-		temperature_max= TEMP_VAL_MAX;
-	else
-		temperature_max= temp;
+	
+	#ifdef PCB_REV_A 
+		/*
+		rev A blink per temp max
+			1: 40˚C 
+			2: 50˚C
+			3: 60˚C
+			4: 70˚C
+			5: 80˚C
+			6: 90˚C
+		*/
+		temp= ADCH>>5; // [0:255]>>5 => [0:7]
+		temp*=10;	   // [0:7] *10  => [0:70]
+		temp+=40;	   // [0:70] +40 => [40:110]
+
+		if(temp>90)
+			temperature_max= 90;
+		else
+			temperature_max= temp;
+
+	#else
+		/*rev B blink per temp max
+			1x per 10°C increment
+			1:10 °C
+			2:20 °C
+			(...)
+			5:50 °C
+			(...)
+			10:100 °C
+		*/
+
+		temp= ADCH/2;
+
+		if(temp>TEMP_VAL_MAX)
+			temperature_max= TEMP_VAL_MAX;
+		else
+			temperature_max= temp;
+	#endif
+
+	
 }
 
 
