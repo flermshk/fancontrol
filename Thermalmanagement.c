@@ -26,13 +26,13 @@
 
 #define PWM_VAL_MIN		0x19	//Minimum PWM value	[0:FF]
 #define PWM_VAL_MAX		0xFF	//Maximum PWM value	[0:FF]
-#define TEMP_VAL_START	25		//Temperature to start Fan power[0:100] °C
+#define TEMP_VAL_START	25		//Temperature to start Fan power[0:100] °C 
 #define TEMP_VAL_MAX	100		//Maximum temperature the user can set the Max_temp
 
 #define PCB_REV_A
 //#define PCB_REV_B
 
-
+ 
 //Uncomment if applicable
 #define PWM_ACTIVE_LOW		
 //#define FAN_POWER_ACTIVE_LOW
@@ -150,7 +150,7 @@ int main(void)
 		//if user selected a new value
 		//The led turn off for 1 sec and
 		//then blink for each 10°C increment
-		//ex: 5 blink = 50°C
+		//ex: 5 blink = 50°C 
 		//to keep if from continuously changing,
 		//the new value must be 8°C more than 
 		//the old value to change the value
