@@ -13,7 +13,7 @@
 	PB4	 -			- ADC2	- temp sensor
 	PB5	 - 			- dont	- touch
 
-	Temperature IC: LMT90DBZT	
+	Temperature IC: LMT90DBZT OR MCP9701A	
 
 	@Author: Jonathan L'Espérance
 	@Original 14/06/2014
@@ -32,6 +32,9 @@
 #define PCB_REV_A
 //#define PCB_REV_B
 
+//Temperature sensors selection
+//#define LMT90DBZT
+#define MCP9701A
  
 //Uncomment if applicable
 #define PWM_ACTIVE_LOW		
@@ -159,7 +162,13 @@ int main(void)
 			temperature_max_mem = temperature_max>>1;
 			led_off();
 			_delay_ms(1000);
-			blink(temperature_max/10);
+			
+			#ifdef PCB_REV_A 
+				blink((temperature_max/10)-3);
+			#else
+				blink(temperature_max/10);
+			#endif
+				
 			_delay_ms(1000);
 		}
 		
@@ -249,7 +258,15 @@ void ioinit (void){
 
 void ReadTemperature(void)
 {
-	temperature= (ADCH-25)<<1;
+	
+	#ifdef LMT90DBZT
+		temperature= (ADCH-25)<<1;
+	#endif
+
+	#ifdef MCP9701A
+		temperature = ADCH-20;	
+	#endif
+	
 }
 
 //return pot value [0:100]
@@ -276,7 +293,7 @@ void ReadPot(void)
 			temperature_max= 90;
 		else
 			temperature_max= temp;
-
+			
 	#else
 		/*rev B blink per temp max
 			1x per 10°C increment

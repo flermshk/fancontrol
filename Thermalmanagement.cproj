@@ -41,7 +41,7 @@
     <com_atmel_avrdbg_tool_stk500>
       <ToolOptions>
         <InterfaceProperties>
-          <IspClock>115200</IspClock>
+          <IspClock>1210</IspClock>
         </InterfaceProperties>
         <InterfaceName>ISP</InterfaceName>
       </ToolOptions>

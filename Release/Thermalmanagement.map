@@ -198,7 +198,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x2ee
+.text           0x00000000      0x2f8
  *(.vectors)
  .vectors       0x00000000       0x14 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack/crttn13a.o
                 0x00000000                __vector_default
@@ -270,38 +270,38 @@ END GROUP
  .text.ioinit   0x00000058       0x1c Thermalmanagement.o
                 0x00000058                ioinit
  .text.ReadTemperature
-                0x00000074       0x14 Thermalmanagement.o
+                0x00000074       0x10 Thermalmanagement.o
                 0x00000074                ReadTemperature
- .text.ReadPot  0x00000088       0x1a Thermalmanagement.o
-                0x00000088                ReadPot
+ .text.ReadPot  0x00000084       0x26 Thermalmanagement.o
+                0x00000084                ReadPot
  .text.LinearPwmCalculate
-                0x000000a2       0x4c Thermalmanagement.o
-                0x000000a2                LinearPwmCalculate
+                0x000000aa       0x4c Thermalmanagement.o
+                0x000000aa                LinearPwmCalculate
  .text.startup.main
-                0x000000ee       0xe8 Thermalmanagement.o
-                0x000000ee                main
+                0x000000f6       0xea Thermalmanagement.o
+                0x000000f6                main
  .text.avr-libc.fplib
-                0x000001d6       0x7a c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack\libm.a(floatsisf.o)
-                0x000001d6                __floatunsisf
-                0x000001da                __floatsisf
+                0x000001e0       0x7a c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack\libm.a(floatsisf.o)
+                0x000001e0                __floatunsisf
+                0x000001e4                __floatsisf
  .text.avr-libc.fplib
-                0x00000250        0x8 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack\libm.a(gesf2.o)
-                0x00000250                __gesf2
-                0x00000250                __gtsf2
+                0x0000025a        0x8 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack\libm.a(gesf2.o)
+                0x0000025a                __gesf2
+                0x0000025a                __gtsf2
  .text.avr-libc.fplib
-                0x00000258       0x48 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack\libm.a(fp_cmp.o)
-                0x00000258                __fp_cmp
+                0x00000262       0x48 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack\libm.a(fp_cmp.o)
+                0x00000262                __fp_cmp
  .text.libgcc.mul
-                0x000002a0       0x22 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_mulhi3.o)
-                0x000002a0                __mulhi3
+                0x000002aa       0x22 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_mulhi3.o)
+                0x000002aa                __mulhi3
  .text.libgcc.div
-                0x000002c2       0x28 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_udivmodhi4.o)
-                0x000002c2                __udivmodhi4
-                0x000002ea                . = ALIGN (0x2)
+                0x000002cc       0x28 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_udivmodhi4.o)
+                0x000002cc                __udivmodhi4
+                0x000002f4                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000002ea        0x0 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_exit.o)
-                0x000002ea                _exit
-                0x000002ea                exit
+ .fini9         0x000002f4        0x0 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_exit.o)
+                0x000002f4                _exit
+                0x000002f4                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -320,11 +320,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000002ea        0x4 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_exit.o)
+ .fini0         0x000002f4        0x4 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr25/tiny-stack\libgcc.a(_exit.o)
  *(.fini0)
-                0x000002ee                _etext = .
+                0x000002f8                _etext = .
 
-.data           0x00800060        0x0 load address 0x000002ee
+.data           0x00800060        0x0 load address 0x000002f8
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800060        0x0 c:/atmel toolchain/avr8 gcc/native/3.4.1056/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr25/tiny-stack/crttn13a.o
@@ -356,8 +356,8 @@ END GROUP
                 0x00800062                temperature
  *(COMMON)
                 0x00800064                PROVIDE (__bss_end, .)
-                0x000002ee                __data_load_start = LOADADDR (.data)
-                0x000002ee                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000002f8                __data_load_start = LOADADDR (.data)
+                0x000002f8                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800064        0x0
                 0x00800064                PROVIDE (__noinit_start, .)
