@@ -91,3 +91,15 @@ cvidist*
 
 
 
+*.atsln
+*.atsuo
+*.cproj
+*.d
+*.eep
+*.map
+*.srec
+*.Makefile
+*.d
+*.lss
+*.elf
+*.mk
