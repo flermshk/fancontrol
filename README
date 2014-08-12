@@ -19,7 +19,7 @@ the led will blink for each 10°C
 increment.
 
 The pin refered as Reg_control or
-power control is to enable an step-up
+power control is used to enable an step-up
 power supply if no 12v is available.
 
 
