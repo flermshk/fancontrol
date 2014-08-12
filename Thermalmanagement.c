@@ -153,15 +153,16 @@ int main(void)
 		//if user selected a new value
 		//The led turn off for 1 sec and
 		//then blink for each 10°C increment
-		//ex: 5 blink = 50°C 
+		//ex: 5 blink = 50°C (PCB_REV_B)
 		//to keep if from continuously changing,
-		//the new value must be 8°C more than 
-		//the old value to change the value
-		if((temperature_max>>1) != temperature_max_mem)
+		//the new value must be 5°C more or less 
+		//than the old value to blink
+		if(	((temperature_max-4) > temperature_max_mem) ||
+			((temperature_max+4) < temperature_max_mem))
 		{
-			temperature_max_mem = temperature_max>>1;
+			temperature_max_mem = temperature_max;
 			led_off();
-			_delay_ms(1000);
+			_delay_ms(500);
 			
 			#ifdef PCB_REV_A 
 				blink((temperature_max/10)-3);
@@ -169,7 +170,7 @@ int main(void)
 				blink(temperature_max/10);
 			#endif
 				
-			_delay_ms(1000);
+			_delay_ms(500);
 		}
 		
   
