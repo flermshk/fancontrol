@@ -1,0 +1,12 @@
+Added Component: Designator=R7(RESC1608N)
+Added Component: Designator=U1(SOT23-5AN)
+Added Pin To Net: NetName=V5 Pin=R7-2
+Added Pin To Net: NetName=NetD1_A Pin=U1-1
+Added Pin To Net: NetName=GND Pin=U1-2
+Added Pin To Net: NetName=NetC8_1 Pin=U1-3
+Added Pin To Net: NetName=V5 Pin=U1-5
+Added Pin To Net: NetName=NetR7_1 Pin=R7-1
+Added Pin To Net: NetName=NetR7_1 Pin=U1-4
+Added Net: Name=NetR7_1
+Added Member To Class: ClassName=Temp Supervisor Member=Component R7 10K
+Added Member To Class: ClassName=Temp Supervisor Member=Component U1 LMR62014

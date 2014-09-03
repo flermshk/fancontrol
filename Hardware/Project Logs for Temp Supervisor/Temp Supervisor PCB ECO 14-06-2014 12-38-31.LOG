@@ -1,0 +1,11 @@
+Added Component: Designator=LED1(LED 3216m)
+Added Component: Designator=R8(RESC1608N)
+Added Pin To Net: NetName=GND Pin=R8-1
+Added Pin To Net: NetName=NetLED1_A Pin=LED1-A
+Added Pin To Net: NetName=NetLED1_A Pin=U2-2
+Added Net: Name=NetLED1_A
+Added Pin To Net: NetName=NetLED1_K Pin=LED1-K
+Added Pin To Net: NetName=NetLED1_K Pin=R8-2
+Added Net: Name=NetLED1_K
+Added Member To Class: ClassName=Temp Supervisor Member=Component LED1 
+Added Member To Class: ClassName=Temp Supervisor Member=Component R8 330

@@ -1,0 +1,29 @@
+Removed Pin From Net: NetName=GND Pin=P1-1
+Removed Pin From Net: NetName=GND Pin=P2-1
+Removed Pin From Net: NetName=V12 Pin=Q1-3
+Removed Pin From Net: NetName=V12 Pin=Q2-3
+Removed Pin From Net: NetName=NetC7_2 Pin=U2-7
+Change Component Comment : Designator=Q1 Old Comment= New Comment=IRFML8244TRPBF
+Change Component Comment : Designator=Q2 Old Comment= New Comment=IRFML8244TRPBF
+Added Component: Designator=C9(CAPC1608N)
+Added Component: Designator=C10(CAPC1608N)
+Added Pin To Net: NetName=GND Pin=C9-1
+Added Pin To Net: NetName=V12 Pin=C9-2
+Added Pin To Net: NetName=GND Pin=C10-1
+Added Pin To Net: NetName=V12 Pin=C10-2
+Added Pin To Net: NetName=V12 Pin=P1-2
+Added Pin To Net: NetName=V12 Pin=P2-2
+Added Pin To Net: NetName=GND Pin=Q1-2
+Added Pin To Net: NetName=GND Pin=Q2-2
+Added Pin To Net: NetName=NetC7_2 Pin=U2-3
+Added Pin To Net: NetName=NetR7_1 Pin=U2-6
+Added Pin To Net: NetName=NetP1_3 Pin=P1-3
+Added Pin To Net: NetName=NetP1_3 Pin=Q1-3
+Added Net: Name=NetP1_3
+Added Pin To Net: NetName=NetP2_3 Pin=P2-3
+Added Pin To Net: NetName=NetP2_3 Pin=Q2-3
+Added Net: Name=NetP2_3
+Added Pin To Net: NetName=NetU2_2 Pin=U2-2
+Added Net: Name=NetU2_2
+Added Member To Class: ClassName=Temp Supervisor Member=Component C9 100nF
+Added Member To Class: ClassName=Temp Supervisor Member=Component C10 100nF

@@ -1,0 +1,14 @@
+Removed Pin From Net: NetName=GND Pin=R8-1
+Removed Pin From Net: NetName=NetLED1_K Pin=R8-2
+Removed Pin From Net: NetName=NetLED1_A Pin=U2-2
+Added Component: Designator=R10(Trim-Pot 2mm SMD)
+Added Pin To Net: NetName=NetLED1_A Pin=R8-1
+Added Pin To Net: NetName=V5 Pin=R8-2
+Added Pin To Net: NetName=NetLED1_K Pin=R9-1
+Added Pin To Net: NetName=GND Pin=R10-1
+Added Pin To Net: NetName=V5 Pin=R10-3
+Added Pin To Net: NetName=NetLED1_K Pin=U2-1
+Added Pin To Net: NetName=NetR10_2 Pin=R10-2
+Added Pin To Net: NetName=NetR10_2 Pin=U2-2
+Added Net: Name=NetR10_2
+Added Member To Class: ClassName=Temp Supervisor Member=Component R10 *

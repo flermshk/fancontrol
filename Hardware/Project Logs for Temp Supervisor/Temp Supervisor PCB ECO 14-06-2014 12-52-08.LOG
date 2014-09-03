@@ -1,0 +1,6 @@
+Added Component: Designator=R9(RESC1608N)
+Added Pin To Net: NetName=V5 Pin=R9-2
+Added Pin To Net: NetName=NetR9_1 Pin=R9-1
+Added Pin To Net: NetName=NetR9_1 Pin=U2-1
+Added Net: Name=NetR9_1
+Added Member To Class: ClassName=Temp Supervisor Member=Component R9 10K
